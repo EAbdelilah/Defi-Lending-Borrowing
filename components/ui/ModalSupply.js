@@ -6,6 +6,8 @@ import { usePromiseTracker } from "react-promise-tracker";
 import { LoadingSpinerComponent } from "../../utils/Spinner";
 import BorderLayout from "./BorderLayout";
 import { todp } from "../../utils/helpfulScripts";
+import { getExplorerLink } from "../../utils/networkUtils";
+import { useWeb3 } from "../providers/web3";
 
 export default function ModalSupply({
   token,
@@ -15,6 +17,7 @@ export default function ModalSupply({
   supplyError,
   supplyResult,
 }) {
+  const { web3 } = useWeb3();
   const { promiseInProgress } = usePromiseTracker();
 
   const [value, setValue] = useState("");
@@ -89,17 +92,30 @@ export default function ModalSupply({
             </button>
 
             <button
-              onClick={() => {
-                // TODO: Implement getExplorerLink(networkId, txHash)
-                // const networkId = await web3.eth.net.getId(); // Example of getting network ID
-                // const explorerLink = getExplorerLink(networkId, supplyResult.transactionHash);
-                // window.open(explorerLink, "_blank");
-                console.warn("Explorer link functionality needs to be implemented for the current network. Falling back to Kovan Etherscan for now.");
-                window.open(`https://kovan.etherscan.io/tx/${supplyResult.transactionHash}`, "_blank");
+              onClick={async () => {
+                if (web3 && supplyResult?.transactionHash) {
+                  try {
+                    const networkId = await web3.eth.net.getId();
+                    const explorerLink = getExplorerLink(networkId, supplyResult.transactionHash);
+                    if (explorerLink) {
+                      if (explorerLink.startsWith("http")) {
+                        window.open(explorerLink, "_blank");
+                      } else {
+                        // Handle cases where it returns a message (e.g., for local network)
+                        alert(explorerLink);
+                      }
+                    } else {
+                      alert("Could not generate explorer link for this network.");
+                    }
+                  } catch (error) {
+                    console.error("Error getting network ID or generating explorer link:", error);
+                    alert("Error generating explorer link.");
+                  }
+                }
               }}
               className="text-sm self-end pr-3 mt-3 text-gray-500 "
             >
-              Review tx details (Update for current network)
+              View on Explorer
             </button>
 
             <div className="flex w-full items-center p-6 space-x-2 rounded-b border-gray-200 dark:border-gray-600">

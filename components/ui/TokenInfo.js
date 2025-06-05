@@ -99,9 +99,28 @@ export default function TokenInfo({
 
   const addTokenToMetamask = async (token) => {
     const tokenAddress = token.tokenAddress;
-    const tokenSymbol = token.name;
     const tokenDecimals = token.decimals;
-    const tokenImage = IMAGES[token.name];
+    let displaySymbol = token.name;
+    let imageKey = token.name; // Default to token.name for image lookup
+
+    if (web3) {
+      try {
+        const networkId = await web3.eth.net.getId();
+        if ((Number(networkId) === 137 || Number(networkId) === 80001) && token.name === "WETH") {
+          displaySymbol = "WMATIC";
+          // If a specific WMATIC image URL were available in IMAGES, we'd use "WMATIC" as imageKey.
+          // Since we can't add new images, we might fall back to WETH or a generic one.
+          // For now, we'll try IMAGES["WMATIC"], if not found, IMAGES[token.name] (WETH) will be used by default later.
+          // A more robust solution would be to have a proper WMATIC image URL.
+          imageKey = "WMATIC"; // Attempt to use WMATIC key, will fallback if not in IMAGES
+        }
+      } catch (e) {
+        console.error("Could not get network ID for addTokenToMetamask", e);
+      }
+    }
+
+    // Fallback for image: if specific imageKey (e.g. WMATIC) doesn't exist, use original token.name (e.g. WETH)
+    const tokenImage = IMAGES[imageKey] || IMAGES[token.name];
 
     try {
       // wasAdded is a boolean. Like any RPC method, an error may be thrown.
@@ -111,17 +130,17 @@ export default function TokenInfo({
           type: "ERC20", // Initially only supports ERC20, but eventually more!
           options: {
             address: tokenAddress, // The address that the token is at.
-            symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
+            symbol: displaySymbol, // Use the potentially network-specific symbol
             decimals: tokenDecimals, // The number of decimals in the token
-            image: tokenImage, // A string url of the token logo
+            image: tokenImage, // Use the resolved token image
           },
         },
       });
 
       if (wasAdded) {
-      // Added
+        console.log(`${displaySymbol} added to Metamask!`);
       } else {
-        // Not Added
+        console.log(`${displaySymbol} not added to Metamask.`);
       }
     } catch (error) {
       console.log(error);

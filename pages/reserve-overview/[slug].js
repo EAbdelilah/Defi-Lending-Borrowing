@@ -13,7 +13,10 @@ import {
 import { useWeb3 } from "../../components/providers/web3";
 import { useRouter } from "next/router";
 import { todp } from "../../utils/todp";
-import { convertToDollar } from "../../utils/helpfulScripts";
+// REMOVED: import { convertToDollar } from "../../utils/helpfulScripts";
+// This import was problematic as scripts/helpful_scripts.js does not export this function.
+// USD conversions should rely on data within the 'token' prop (e.g., token.oneTokenToDollar or pre-calculated USD values)
+// or be done by client-side components using useWeb3() to call contract.methods.getAmountInDollars().
 
 export default function Details({ token }) {
 
@@ -36,17 +39,17 @@ export default function Details({ token }) {
   const tokenAvailableInContract = parseFloat(
     token.availableAmountInContract.amount
   );
-  const tokenAvailableInContractInDollars = convertToDollar(
-    token,
-    tokenAvailableInContract
-  );
+  // MODIFIED: Calculations now use token.oneTokenToDollar.
+  // Assumes 'token.oneTokenToDollar' is provided and accurate.
+  // Also assumes 'token.availableAmountInContract.inDollars' is a pre-calculated prop for initial display.
+  const tokenAvailableInContractInDollars = token.availableAmountInContract.inDollars || (tokenAvailableInContract * parseFloat(token.oneTokenToDollar || 0));
 
   if (tokenAvailableInContract >= tokenEquivalent) {
     actualAvailable = tokenEquivalent;
-    actualAvailableInDollars = convertToDollar(token, actualAvailable);
+    actualAvailableInDollars = actualAvailable * parseFloat(token.oneTokenToDollar || 0);
   } else {
     actualAvailable = tokenAvailableInContract;
-    actualAvailableInDollars = tokenAvailableInContractInDollars;
+    actualAvailableInDollars = tokenAvailableInContractInDollars; // Uses the above calculation
   }
 
 
