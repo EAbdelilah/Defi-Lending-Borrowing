@@ -3,7 +3,11 @@ import correct from "../../assets/correct.png";
 import { todp } from "../../utils/todp";
 import { useState } from "react";
 import { LoadingSpinerComponent } from "../../utils/Spinner";
-import { convertToDollar } from "../../utils/helpfulScripts";
+// REMOVED: import { convertToDollar } from "../../utils/helpfulScripts";
+// This import is problematic:
+// 1. helpfulScripts.js (in scripts/) does not export convertToDollar.
+// 2. The file utils/convertToDollar.js defines it using React hooks, making it unsuitable for non-component utility logic.
+// Dollar conversions should rely on contract calls (e.g., getAmountInDollars via web3Api) or pre-calculated props like token.oneTokenToDollar.
 import BorderLayout from "./BorderLayout";
 import { usePromiseTracker } from "react-promise-tracker";
 
@@ -32,17 +36,17 @@ export default function ModalBorrow({
   const tokenAvailableInContract = parseFloat(
     token.availableAmountInContract.amount
   );
-  const tokenAvailableInContractInDollars = convertToDollar(
-    token,
-    tokenAvailableInContract
-  );
+  // MODIFIED: Replaced convertToDollar call with direct calculation using token.oneTokenToDollar
+  // This assumes token.oneTokenToDollar is accurately populated from upstream (e.g., contract calls).
+  const tokenAvailableInContractInDollars = tokenAvailableInContract * parseFloat(token.oneTokenToDollar || 0);
 
   if (tokenAvailableInContract >= tokenEquivalent) {
     actualAvailable = tokenEquivalent;
-    actualAvailableInDollars = convertToDollar(token, actualAvailable);
+    // MODIFIED: Replaced convertToDollar call
+    actualAvailableInDollars = actualAvailable * parseFloat(token.oneTokenToDollar || 0);
   } else {
     actualAvailable = tokenAvailableInContract;
-    actualAvailableInDollars = tokenAvailableInContractInDollars;
+    actualAvailableInDollars = tokenAvailableInContractInDollars; // This was already calculated using the modified logic
   }
 
 
@@ -119,14 +123,16 @@ export default function ModalBorrow({
 
           <button
             onClick={() => {
-              window.open(
-                `https://kovan.etherscan.io/tx/${borrowingResult.transactionHash}`,
-                "_blank"
-              );
+                // TODO: Implement getExplorerLink(networkId, txHash)
+                // const networkId = await web3.eth.net.getId(); // Example of getting network ID
+                // const explorerLink = getExplorerLink(networkId, borrowingResult.transactionHash);
+                // window.open(explorerLink, "_blank");
+                console.warn("Explorer link functionality needs to be implemented for the current network. Falling back to Kovan Etherscan for now.");
+                window.open(`https://kovan.etherscan.io/tx/${borrowingResult.transactionHash}`, "_blank");
             }}
             className="text-sm self-end pr-3 mt-3 text-gray-500 "
           >
-            Review tx details
+              Review tx details (Update for current network)
           </button>
 
           <div className="flex w-full items-center p-6 space-x-2 rounded-b border-gray-200 dark:border-gray-600">

@@ -3,7 +3,13 @@ DeFi Lending platform which lets you lend, borrow crypto assets and helps you ea
 
 A full stack, fully-onchain DeFi app that enables users to supply tokens to the contract and are rewarded with some customly made ERC20 token (LAR) based on the amount of token they supply and also allows users to borrow tokens from it.
 
-It is deployed on the Ethereum Kovan Network.
+It can be deployed on Ethereum (e.g., Kovan, Sepolia, Mainnet), Polygon (Mainnet, Mumbai), and Arbitrum (Mainnet, Goerli) networks.
+
+# Supported Networks
+The application is configured to run on the following networks:
+*   Ethereum (Mainnet, Sepolia, Kovan, local development)
+*   Polygon (Mainnet: `polygon_mainnet`, Testnet: `polygon_mumbai`)
+*   Arbitrum (Mainnet: `arbitrum_mainnet`, Testnet: `arbitrum_goerli`)
 
 # Features
 1. The contract supports 4 test tokens; DAI, LINK, WETH and FAU 😎

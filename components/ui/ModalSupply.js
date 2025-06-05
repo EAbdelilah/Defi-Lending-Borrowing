@@ -90,14 +90,16 @@ export default function ModalSupply({
 
             <button
               onClick={() => {
-                window.open(
-                  `https://kovan.etherscan.io/tx/${supplyResult.transactionHash}`,
-                  "_blank"
-                );
+                // TODO: Implement getExplorerLink(networkId, txHash)
+                // const networkId = await web3.eth.net.getId(); // Example of getting network ID
+                // const explorerLink = getExplorerLink(networkId, supplyResult.transactionHash);
+                // window.open(explorerLink, "_blank");
+                console.warn("Explorer link functionality needs to be implemented for the current network. Falling back to Kovan Etherscan for now.");
+                window.open(`https://kovan.etherscan.io/tx/${supplyResult.transactionHash}`, "_blank");
               }}
               className="text-sm self-end pr-3 mt-3 text-gray-500 "
             >
-              Review tx details
+              Review tx details (Update for current network)
             </button>
 
             <div className="flex w-full items-center p-6 space-x-2 rounded-b border-gray-200 dark:border-gray-600">

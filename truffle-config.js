@@ -24,6 +24,50 @@ module.exports = {
       },
       gas_price: 25000000000,
       network_id: 11155111
+    },
+    polygon_mainnet: {
+      provider: function() {
+        return new HDWalletProvider(
+          MNEMONIC,
+          process.env.POLYGON_MAINNET_RPC_URL
+        )
+      },
+      network_id: 137,
+      gasPrice: 50000000000, // Example value, adjust as needed
+      gas: 2000000 // Example value, adjust as needed
+    },
+    polygon_mumbai: {
+      provider: function() {
+        return new HDWalletProvider(
+          MNEMONIC,
+          process.env.POLYGON_MUMBAI_RPC_URL
+        )
+      },
+      network_id: 80001,
+      gasPrice: 50000000000, // Example value, adjust as needed
+      gas: 2000000 // Example value, adjust as needed
+    },
+    arbitrum_mainnet: {
+      provider: function() {
+        return new HDWalletProvider(
+          MNEMONIC,
+          process.env.ARBITRUM_MAINNET_RPC_URL
+        )
+      },
+      network_id: 42161,
+      gasPrice: 100000000, // Example value, adjust as needed
+      gas: 2000000 // Example value, adjust as needed
+    },
+    arbitrum_goerli: {
+      provider: function() {
+        return new HDWalletProvider(
+          MNEMONIC,
+          process.env.ARBITRUM_GOERLI_RPC_URL
+        )
+      },
+      network_id: 421613,
+      gasPrice: 100000000, // Example value, adjust as needed
+      gas: 2000000 // Example value, adjust as needed
     }
   },
   contracts_directory: './contracts/',
