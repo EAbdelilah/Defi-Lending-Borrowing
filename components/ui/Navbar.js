@@ -1,7 +1,30 @@
 import React from "react";
+import { useWeb3 } from "../../../components/providers/web3";
 
+const getNetworkName = (chainId) => {
+  switch (chainId) {
+    case 1:
+      return "Ethereum";
+    case 11155111:
+      return "Sepolia";
+    case 137:
+      return "Polygon";
+    case 80001:
+      return "Mumbai";
+    case 42161:
+      return "Arbitrum One";
+    case 421614:
+      return "Arbitrum Sepolia";
+    case null:
+    case undefined:
+      return "Connecting...";
+    default:
+      return "Unsupported Network";
+  }
+};
 
-export default function Navbar({accountAddress}) {
+export default function Navbar({accountAddress}) { // accountAddress is still a prop
+  const { chainId } = useWeb3();
 
   return (
     <>
@@ -20,8 +43,13 @@ export default function Navbar({accountAddress}) {
                 Dashboard
               </a>
             </div>
-            <div className="px-4 py-1 text-white border bg-gray-800 border-gray-400 rounded-md">
-              {accountAddress.slice(0,7)}...{accountAddress.slice(accountAddress.length-10)}
+            <div className="flex items-center">
+              <span className="text-white mr-3">{getNetworkName(chainId)}</span>
+              { accountAddress && // Conditionally render account if available
+                <div className="px-4 py-1 text-white border bg-gray-800 border-gray-400 rounded-md">
+                  {accountAddress.slice(0,7)}...{accountAddress.slice(accountAddress.length-10)}
+                </div>
+              }
             </div>
           </div>
           {/* Form */}
