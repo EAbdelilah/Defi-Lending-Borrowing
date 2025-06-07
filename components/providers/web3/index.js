@@ -11,13 +11,14 @@ const setListeners = (provider) => {
 };
 
 export default function Web3Provider({ children }) {
-  const createWeb3State = ({ web3, provider, contract, isLoading }) => {
+  const createWeb3State = ({ web3, provider, contract, isLoading, chainId }) => {
     return {
       web3,
       provider,
       contract,
       isLoading,
-      hooks: setupHooks({ web3, provider, contract }),
+      chainId, // Added chainId
+      hooks: setupHooks({ web3, provider, contract }), // chainId could be passed to hooks if needed later
     };
   };
 
@@ -27,6 +28,7 @@ export default function Web3Provider({ children }) {
       provider: null,
       contract: null,
       isLoading: true,
+      chainId: null, // Initialize chainId
     })
   );
 
@@ -36,13 +38,14 @@ export default function Web3Provider({ children }) {
       if (provider) {
         const web3 = new Web3(provider);
         const contract = await loadContract("LendingAndBorrowing", web3);
+        const chainId = await web3.eth.getChainId(); // Fetch chainId
         setWeb3Api(
-          createWeb3State({ web3, provider, contract, isLoading: false })
+          createWeb3State({ web3, provider, contract, isLoading: false, chainId }) // Pass chainId
         );
         setListeners(provider);
       } else {
         console.error("Please Install metamask");
-        setWeb3Api((prevWeb3Api) => ({ ...prevWeb3Api, isLoading: false }));
+        setWeb3Api((prevWeb3Api) => ({ ...prevWeb3Api, isLoading: false, chainId: null })); // Ensure chainId is reset/handled
       }
     };
 
@@ -50,10 +53,12 @@ export default function Web3Provider({ children }) {
   }, []);
 
   const _web3Api = useMemo(() => {
-    const { web3, provider, isLoading, contract } = web3Api;
+    // Destructure chainId here if it's directly used in _web3Api's returned object computations
+    // For now, it's passed through via ...web3Api
+    // const { web3, provider, isLoading, contract, chainId } = web3Api;
 
     return {
-      ...web3Api,
+      ...web3Api, // chainId will be part of this
       requireInstall: !isLoading && !web3,
       connect: provider
         ? async () => {
